@@ -24,7 +24,7 @@
                                         <path :d="pathHomeButtonTop" />
                                     </g>
                                     <g transform="matrix(0.654426,0,0,0.654426,0.298666,4.01315)">
-                                        <text x="3.789px" y="6.089px">X</text>
+                                        <text x="3.789px" y="6.089px">R</text>
                                     </g>
                                     <g
                                         id="Icon"
@@ -46,7 +46,7 @@
                                         <path :d="pathHomeButtonTop" />
                                     </g>
                                     <g transform="matrix(0.654426,0,0,0.654426,0.298666,4.01315)">
-                                        <text x="3.789px" y="6.089px">Y</text>
+                                        <text x="3.789px" y="6.089px">Θ</text>
                                     </g>
                                     <g
                                         id="icon"

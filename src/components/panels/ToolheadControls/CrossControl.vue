@@ -169,7 +169,7 @@
                                         height="30"
                                         class="btnMinWidthAuto w-100"
                                         @click="doHomeX">
-                                        X
+                                        R
                                     </v-btn>
                                 </v-col>
                                 <v-col v-if="!enableXYHoming" cols="4" class="flex-grow-1">
@@ -181,7 +181,7 @@
                                         height="30"
                                         class="btnMinWidthAuto w-100"
                                         @click="doHomeY">
-                                        Y
+                                        Θ
                                     </v-btn>
                                 </v-col>
                                 <v-col v-else cols="6" class="flex-grow-1">
@@ -281,7 +281,7 @@
                                         height="30"
                                         class="btnMinWidthAuto w-100"
                                         @click="doHomeX">
-                                        X
+                                        R
                                     </v-btn>
                                 </v-col>
                                 <v-col v-if="!enableXYHoming" cols="4" class="flex-grow-1">
@@ -293,7 +293,7 @@
                                         height="30"
                                         class="btnMinWidthAuto w-100"
                                         @click="doHomeY">
-                                        Y
+                                        Θ
                                     </v-btn>
                                 </v-col>
                                 <v-col v-else cols="6" class="flex-grow-1">

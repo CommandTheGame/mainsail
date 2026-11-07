@@ -105,6 +105,14 @@ export default class ControlMixin extends Vue {
         return this.homedAxes.includes('z')
     }
 
+    get wAxisHomed(): boolean {
+        return this.homedAxes.includes('w')
+    }
+
+    get existsWAxis(): boolean {
+        return 'stepper_w' in (this.$store.state.printer?.configfile?.settings ?? {})
+    }
+
     get macros() {
         return this.$store.getters['printer/getMacros']
     }
@@ -149,6 +157,11 @@ export default class ControlMixin extends Vue {
     doHomeY() {
         this.$store.dispatch('server/addEvent', { message: 'G28 Y', type: 'command' })
         this.$socket.emit('printer.gcode.script', { script: 'G28 Y' }, { loading: 'homeY' })
+    }
+
+    doHomeW() {
+        this.$store.dispatch('server/addEvent', { message: 'G28 W', type: 'command' })
+        this.$socket.emit('printer.gcode.script', { script: 'G28 W' }, { loading: 'homeW' })
     }
 
     doHomeXY() {

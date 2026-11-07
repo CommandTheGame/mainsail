@@ -71,7 +71,7 @@
                         :loading="loadings.includes('homeX')"
                         class="font-weight-bold btnHomeAxis btnGroup"
                         @click="doHomeX">
-                        X
+                        R
                     </v-btn>
                     <v-btn
                         v-for="steps of stepsXYsortedReverse"
@@ -102,7 +102,7 @@
                         :loading="loadings.includes('homeY')"
                         class="font-weight-bold btnHomeAxis btnGroup"
                         @click="doHomeY">
-                        Y
+                        Θ
                     </v-btn>
                     <v-btn
                         v-for="steps of stepsXYsortedReverse"
