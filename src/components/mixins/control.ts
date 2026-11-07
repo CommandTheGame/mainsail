@@ -192,7 +192,7 @@ export default class ControlMixin extends Vue {
             `RESTORE_GCODE_STATE NAME=_ui_movement`
 
         // _CLIENT_LINEAR_MOVE only knows X/Y/Z/E, so W moves use plain G1
-        if (this.existsClientLinearMoveMacro && !/W/.test(gcode)) {
+        if (this.existsClientLinearMoveMacro && !gcode.includes('W')) {
             gcode = gcode
                 .split(' ')
                 .map((part) => {
