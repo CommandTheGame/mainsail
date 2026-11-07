@@ -1,58 +1,49 @@
 <template>
-    <v-row dense class="mt-3 align-center">
-        <v-col cols="3">
-            <v-btn
-                :disabled="['printing'].includes(printer_state)"
-                :loading="loadings.includes('homeW')"
-                :color="wAxisHomed ? 'primary' : 'warning'"
-                tile
-                height="30"
-                class="btnMinWidthAuto w-100"
-                @click="doHomeW">
-                <v-icon small left>{{ mdiHome }}</v-icon>
-                W
-            </v-btn>
-        </v-col>
-        <v-col cols="4">
-            <v-btn class="btnMinWidthAuto w-100" :disabled="moveDisabled" @click="doSendMove(`W-${stepSize}`, feedrateXY)">
-                <v-icon>{{ mdiChevronLeft }}</v-icon>
-            </v-btn>
-        </v-col>
-        <v-col cols="1"></v-col>
-        <v-col cols="4">
-            <v-btn class="btnMinWidthAuto w-100" :disabled="moveDisabled" @click="doSendMove(`W+${stepSize}`, feedrateXY)">
-                <v-icon>{{ mdiChevronRight }}</v-icon>
-            </v-btn>
+    <v-row dense class="mt-2">
+        <v-col class="text-center">
+            <v-item-group class="_btn-group row no-gutters">
+                <v-btn
+                    v-for="steps of stepsSorted"
+                    :key="'w-' + steps"
+                    :disabled="moveDisabled"
+                    class="btnMinWidthAuto col btnGroup"
+                    @click="doSendMove('W-' + steps, feedrateXY)">
+                    <span class="body-2">–{{ steps }}</span>
+                </v-btn>
+                <v-btn
+                    :disabled="['printing'].includes(printer_state)"
+                    :color="wAxisHomed ? 'primary' : 'warning'"
+                    :loading="loadings.includes('homeW')"
+                    class="font-weight-bold btnHomeAxis btnGroup"
+                    @click="doHomeW">
+                    W
+                </v-btn>
+                <v-btn
+                    v-for="steps of stepsSortedReverse"
+                    :key="'w+' + steps"
+                    :disabled="moveDisabled"
+                    class="btnMinWidthAuto col btnGroup"
+                    @click="doSendMove('W+' + steps, feedrateXY)">
+                    <span class="body-2">+{{ steps }}</span>
+                </v-btn>
+            </v-item-group>
         </v-col>
     </v-row>
 </template>
-
-<style scoped>
-.btnMinWidthAuto {
-    min-width: auto !important;
-}
-</style>
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import ControlMixin from '@/components/mixins/control'
-import { mdiChevronLeft, mdiChevronRight, mdiHome } from '@mdi/js'
 
 @Component
 export default class WAxisControl extends Mixins(BaseMixin, ControlMixin) {
-    mdiChevronLeft = mdiChevronLeft
-    mdiChevronRight = mdiChevronRight
-    mdiHome = mdiHome
-
-    get stepsReversed(): number[] {
-        const steps: number[] = this.$store.state.gui.control?.stepsAll ?? []
-        return Array.from(new Set(steps)).sort((a, b) => a - b)
+    get stepsSorted(): number[] {
+        return [...(this.$store.state.gui.control?.stepsXY ?? [])].sort((a, b) => b - a)
     }
 
-    get stepSize(): number {
-        const idx = this.$store.state.gui.control?.selectedCrossStep ?? 0
-        return this.stepsReversed[idx] ?? this.stepsReversed[0] ?? 1
+    get stepsSortedReverse(): number[] {
+        return [...(this.$store.state.gui.control?.stepsXY ?? [])].sort((a, b) => a - b)
     }
 
     get moveDisabled(): boolean {
@@ -60,3 +51,56 @@ export default class WAxisControl extends Mixins(BaseMixin, ControlMixin) {
     }
 }
 </script>
+
+<style scoped>
+.btnHomeAxis {
+    width: 36px;
+    min-width: 36px !important;
+}
+
+.btnGroup {
+    height: 28px !important;
+}
+
+.btnMinWidthAuto {
+    min-width: auto !important;
+}
+
+._btn-group {
+    border-radius: 4px;
+    display: inline-flex;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    min-width: 100%;
+    width: 100%;
+
+    .v-btn {
+        border-radius: 0;
+        border-color: rgba(255, 255, 255, 0.12);
+        border-style: solid;
+        border-width: thin;
+        box-shadow: none;
+        height: 28px;
+        opacity: 0.8;
+        min-width: auto !important;
+    }
+
+    .v-btn:first-child {
+        border-top-left-radius: inherit;
+        border-bottom-left-radius: inherit;
+    }
+
+    .v-btn:last-child {
+        border-top-right-radius: inherit;
+        border-bottom-right-radius: inherit;
+    }
+
+    .v-btn:not(:first-child) {
+        border-left-width: 0;
+    }
+}
+
+html.theme--light ._btn-group .v-btn {
+    border-color: rgba(0, 0, 0, 0.12);
+}
+</style>
