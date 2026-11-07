@@ -30,7 +30,7 @@
                     </v-col>
                 </v-row>
                 <v-row v-if="showCoordinates" dense>
-                    <v-col :class="el.is.xsmall ? 'col-12' : 'col-4'">
+                    <v-col :class="el.is.xsmall ? 'col-12' : colClass">
                         <move-to-input
                             v-model="input.x.pos"
                             :label="livePositions.x"
@@ -41,7 +41,7 @@
                             :disabled="!xAxisHomed"
                             @submit="sendCmd" />
                     </v-col>
-                    <v-col :class="el.is.xsmall ? 'col-12' : 'col-4'">
+                    <v-col :class="el.is.xsmall ? 'col-12' : colClass">
                         <move-to-input
                             v-model="input.y.pos"
                             :label="livePositions.y"
@@ -52,7 +52,7 @@
                             :disabled="!yAxisHomed"
                             @submit="sendCmd" />
                     </v-col>
-                    <v-col :class="el.is.xsmall ? 'col-12' : 'col-4'">
+                    <v-col :class="el.is.xsmall ? 'col-12' : colClass">
                         <move-to-input
                             v-model="input.z.pos"
                             :label="livePositions.z"
@@ -61,6 +61,17 @@
                             :current-pos="gcodePositions.z"
                             :readonly="['printing'].includes(printer_state)"
                             :disabled="!zAxisHomed"
+                            @submit="sendCmd" />
+                    </v-col>
+                    <v-col v-if="existsWAxis" :class="el.is.xsmall ? 'col-12' : colClass">
+                        <move-to-input
+                            v-model="input.w.pos"
+                            :label="livePositions.w"
+                            :suffix="'W'"
+                            :step="0.01"
+                            :current-pos="gcodePositions.w"
+                            :readonly="['printing'].includes(printer_state)"
+                            :disabled="!wAxisHomed"
                             @submit="sendCmd" />
                     </v-col>
                 </v-row>
@@ -88,6 +99,7 @@ export default class MoveToControl extends Mixins(BaseMixin, ControlMixin) {
         x: { pos: '', valid: true },
         y: { pos: '', valid: true },
         z: { pos: '', valid: true },
+        w: { pos: '', valid: true },
     }
 
     @Watch('gcodePositions.x', { immediate: true })
@@ -103,6 +115,15 @@ export default class MoveToControl extends Mixins(BaseMixin, ControlMixin) {
     @Watch('gcodePositions.z', { immediate: true })
     updatePositionZ(newVal: string): void {
         this.input.z.pos = newVal
+    }
+
+    @Watch('gcodePositions.w', { immediate: true })
+    updatePositionW(newVal: string): void {
+        this.input.w.pos = newVal
+    }
+
+    get colClass(): string {
+        return this.existsWAxis ? 'col-3' : 'col-4'
     }
 
     /**
@@ -124,6 +145,7 @@ export default class MoveToControl extends Mixins(BaseMixin, ControlMixin) {
             x: pos[0]?.toFixed(2) ?? '--',
             y: pos[1]?.toFixed(2) ?? '--',
             z: pos[2]?.toFixed(3) ?? '--',
+            w: pos[3]?.toFixed(2) ?? '--',
         }
     }
 
@@ -133,6 +155,7 @@ export default class MoveToControl extends Mixins(BaseMixin, ControlMixin) {
             x: pos[0]?.toFixed(2) ?? '--',
             y: pos[1]?.toFixed(2) ?? '--',
             z: pos[2]?.toFixed(3) ?? '--',
+            w: pos[3]?.toFixed(2) ?? '--',
         }
     }
 
@@ -193,13 +216,19 @@ export default class MoveToControl extends Mixins(BaseMixin, ControlMixin) {
             }
         }
 
+        if (this.existsWAxis && this.input.w.pos !== this.gcodePositions.w) {
+            if (this.existsClientLinearMoveMacro)
+                gcode.push(`_CLIENT_LINEAR_MOVE W=${this.input.w.pos} F=${this.feedrateXY * 60} ABSOLUTE=1`)
+            else gcode.push(`G1 W${this.input.w.pos} F${this.feedrateXY * 60}`)
+        }
+
         if (!this.existsClientLinearMoveMacro) {
             gcode.push('RESTORE_GCODE_STATE NAME=_ui_movement')
         }
 
         const gcodeStr = gcode.join('\n')
 
-        if (this.input.x.valid && this.input.y.valid && this.input.z.valid) {
+        if (this.input.x.valid && this.input.y.valid && this.input.z.valid && this.input.w.valid) {
             this.$store.dispatch('server/addEvent', { message: gcodeStr, type: 'command' })
             this.$socket.emit('printer.gcode.script', { script: gcodeStr })
         }
