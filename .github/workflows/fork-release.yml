@@ -1,0 +1,38 @@
+name: Fork release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-package-lock --legacy-peer-deps
+
+      - name: Build
+        run: npx vite build
+
+      - name: Write release_info.json (read by Moonraker)
+        run: |
+          echo "{\"project_name\":\"mainsail\",\"project_owner\":\"${{ github.repository_owner }}\",\"version\":\"${{ github.ref_name }}\"}" > dist/release_info.json
+
+      - name: Zip
+        run: cd dist && zip -r ../mainsail.zip ./ -x '**.DS_Store'
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: mainsail.zip
+          generate_release_notes: true
