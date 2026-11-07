@@ -217,9 +217,11 @@ export default class MoveToControl extends Mixins(BaseMixin, ControlMixin) {
         }
 
         if (this.existsWAxis && this.input.w.pos !== this.gcodePositions.w) {
-            if (this.existsClientLinearMoveMacro)
-                gcode.push(`_CLIENT_LINEAR_MOVE W=${this.input.w.pos} F=${this.feedrateXY * 60} ABSOLUTE=1`)
-            else gcode.push(`G1 W${this.input.w.pos} F${this.feedrateXY * 60}`)
+            // _CLIENT_LINEAR_MOVE does not support W, so use plain G1 with explicit state handling
+            if (this.existsClientLinearMoveMacro) gcode.push('SAVE_GCODE_STATE NAME=_ui_movement_w')
+            gcode.push('G90')
+            gcode.push(`G1 W${this.input.w.pos} F${this.feedrateXY * 60}`)
+            if (this.existsClientLinearMoveMacro) gcode.push('RESTORE_GCODE_STATE NAME=_ui_movement_w')
         }
 
         if (!this.existsClientLinearMoveMacro) {

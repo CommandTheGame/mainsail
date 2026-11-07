@@ -191,7 +191,8 @@ export default class ControlMixin extends Vue {
             `G1 ${gcode} F${feedrate * 60}\n` +
             `RESTORE_GCODE_STATE NAME=_ui_movement`
 
-        if (this.existsClientLinearMoveMacro) {
+        // _CLIENT_LINEAR_MOVE only knows X/Y/Z/E, so W moves use plain G1
+        if (this.existsClientLinearMoveMacro && !/W/.test(gcode)) {
             gcode = gcode
                 .split(' ')
                 .map((part) => {
